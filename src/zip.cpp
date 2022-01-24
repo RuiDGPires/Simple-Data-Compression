@@ -22,12 +22,20 @@ typedef uint8_t u8;
 
 #define USAGE "./simplecompression <input file> <output file> [-d <dictionary size (bits)>]"
 
+size_t get_file_size(FILE *file){
+  // Missing error checking
+  fseek(file, 0, SEEK_END); 
+  size_t size = ftell(file); 
+  fseek(file, 0, SEEK_SET); 
+  return size;
+}
+
 class BitWritter{
     private:
-        FILE *file = NULL;
         u8 buffer = 0; 
         u8 buffer_size = 0;
     public:
+        FILE *file = NULL;
         BitWritter(){}
         ~BitWritter(){this->flush();fclose(this->file);}
 
@@ -161,6 +169,16 @@ int main(int argc, char *argv[]){
         current.pop_back();
         bw.write(dic_size, table[current], bit);
     }
+
+    size_t original_file_size = get_file_size(fin);
+    size_t compressed_file_size = get_file_size(bw.file);
+
+    double perc = 1 - (double) compressed_file_size / original_file_size;
+
+    if (perc < 0)
+        printf("Compression unsuccessfull (compressed file size is bigger than the original size)\n");
+    else
+        printf("%s (%dKB) -> %s (%dKB) | Compressed %0.2f\%\n", fin_name, original_file_size >> 10, fout_name, compressed_file_size >> 10, perc * 100);
 
     fclose(fin);
 
