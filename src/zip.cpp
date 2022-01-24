@@ -170,15 +170,13 @@ int main(int argc, char *argv[]){
         bw.write(dic_size, table[current], bit);
     }
 
+    bw.flush();
     size_t original_file_size = get_file_size(fin);
     size_t compressed_file_size = get_file_size(bw.file);
 
     double perc = 1 - (double) compressed_file_size / original_file_size;
 
-    if (perc < 0)
-        printf("Compression unsuccessfull (compressed file size is bigger than the original size)\n");
-    else
-        printf("%s (%dKB) -> %s (%dKB) | Compressed %0.2f\%\n", fin_name, original_file_size >> 10, fout_name, compressed_file_size >> 10, perc * 100);
+    printf("%s (%dKB) -> %s (%dKB) | Compressed %0.2f\%\n", fin_name, original_file_size >> 10, fout_name, compressed_file_size >> 10, perc * 100);
 
     fclose(fin);
 
